@@ -1,9 +1,8 @@
 tasks:
 - s3tests:
     client.0:
-      sts_tests: True
-      extra_attrs: ["test_of_sts"]
-      force-branch: ceph-master
+      extra_attrs: ['sts_test']
+      force-branch: master
       rgw_server: client.0
 overrides:
   ceph:
