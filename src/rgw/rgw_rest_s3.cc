@@ -6224,7 +6224,7 @@ int RGWSelectObj_ObjStore_S3::send_response_data(bufferlist& bl, off_t ofs, off_
     dump_errno(s);
   }
 
-  auto bl_len = [](bufferlist& bl){int i=0;for(auto& iter : bl.buffers())i++; return i;};
+  auto bl_len = bl.get_num_buffers();
 
   // Explicitly use chunked transfer encoding so that we can stream the result
   // to the user without having to wait for the full length of it.
@@ -6237,12 +6237,11 @@ int RGWSelectObj_ObjStore_S3::send_response_data(bufferlist& bl, off_t ofs, off_
 
   for(auto& it : bl.buffers()) {
 
-    ldout(s->cct, 10) << "processing segment " << i << "out of " << bl_len(bl) << " off " << ofs
+    ldout(s->cct, 10) << "processing segment " << i << " out of " << bl_len << " off " << ofs
                       << " len " << len << " obj-size " << s->obj_size << dendl;
 
-    if(it.length() == 0)
-    {
-      ldout(s->cct, 0) << "s3select:it->_len is zero. segment " << i << " out of " << bl_len(bl)
+    if(it.length() == 0) {
+      ldout(s->cct, 0) << "s3select:it->_len is zero. segment " << i << " out of " << bl_len
                         <<  " obj-size " << s->obj_size << dendl;
     }
 
