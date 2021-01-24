@@ -57,10 +57,8 @@ Error Handling
 
 
 
-
 Features Support
 ----------------
-
 .. _feature-table:
 
   | Currently only part of `AWS select command <https://docs.aws.amazon.com/AmazonS3/latest/dev/s3-glacier-select-sql-reference-select.html>`_ is implemented, table bellow describes what is currently supported.
@@ -83,17 +81,24 @@ Features Support
 +---------------------------------+-----------------+-----------------------------------------------------------------------+
 | logical operator                | is not null     | return true/false for null indication in expression                   |
 +---------------------------------+-----------------+-----------------------------------------------------------------------+
-| logical operator and NULL       | unknown state   | review null-handle_ observe how logical operator result with null     |
+| logical operator and NULL       | unknown state   | review null-handle_ observe how logical operator result with null.    |
+|                                 |                 | the following query return **0**.                                     |
+|                                 |                 | ``select count(*) from s3object where null and (3>2);``               |
 +---------------------------------+-----------------+-----------------------------------------------------------------------+
 | Arithmetic operator with NULL   | unknown state   | review null-handle_ observe the results of binary operations with NULL|
+|                                 |                 | the following query return **0**.                                     |
+|                                 |                 | ``select count(*) from s3object where (null+1) and (3>2);``           |
 +---------------------------------+-----------------+-----------------------------------------------------------------------+
 | compare with NULL               | unknown state   | review null-handle_ observe results of compare operations with NULL   | 
+|                                 |                 | the following query return **0**.                                     |
+|                                 |                 | ``select count(*) from s3object where (null*1.5) != 3;``              |
 +---------------------------------+-----------------+-----------------------------------------------------------------------+
 | missing column                  | unknown state   | select count(*) from s3object where _1 is null;                       | 
 +---------------------------------+-----------------+-----------------------------------------------------------------------+
-| projection column               |                                                                                         | 
-|                                 |  select  case when (1+1==(2+1)*3)  than "case_1"                                        |
-|                                 |      when ((4*3)==(12)) than "case_2" else "case_else" end,age*2 from s3object;         | 
+| projection column               | similar to      |   select case                                                         | 
+|                                 | if/then/else    |           when (1+1==(2+1)*3) then 'case_1'                           |
+|                                 |                 |           when ((4*3)==(12)) then 'case_2' else 'case_else' end,      |
+|                                 |                 |           age*2 from s3object;                                        | 
 +---------------------------------+-----------------+-----------------------------------------------------------------------+
 | logical operator                | ``coalesce`` :: return first non-null argumnet                                          | 
 |                                 |                   select coalesce(nullif(5,5),nullif(1,1.0),age+12) from s3object;      |
@@ -121,7 +126,7 @@ Features Support
 +---------------------------------+-----------------+-----------------------------------------------------------------------+
 | non AWS casting operator        | select float(1.2) from s3object;                                                        |
 +---------------------------------+-----------------+-----------------------------------------------------------------------+
-| not AWS casting operator        | select timestamp("1999:10:10-12:23:44") from s3object;                                  |
+| not AWS casting operator        | select timestamp('1999:10:10-12:23:44') from s3object;                                  |
 +---------------------------------+-----------------+-----------------------------------------------------------------------+
 | Aggregation Function            | sum             | select sum(int(_1)) from s3object;                                    |
 +---------------------------------+-----------------+-----------------------------------------------------------------------+
@@ -134,37 +139,37 @@ Features Support
 | Aggregation Function            | count           | select count(*) from s3object where (int(1)+int(_3))>int(_5);         |
 +---------------------------------+-----------------+-----------------------------------------------------------------------+
 | Timestamp Functions             | extract         | select count(*) from s3object where                                   |
-|                                 |                 | extract("year",timestamp(_2)) > 1950                                  |    
-|                                 |                 | and extract("year",timestamp(_1)) < 1960;                             |
+|                                 |                 | extract('year',timestamp(_2)) > 1950                                  |    
+|                                 |                 | and extract('year',timestamp(_1)) < 1960;                             |
 +---------------------------------+-----------------+-----------------------------------------------------------------------+
 | Timestamp Functions             | dateadd         | select count(0) from s3object where                                   |
-|                                 |                 | datediff("year",timestamp(_1),dateadd("day",366,timestamp(_1))) == 1; |  
+|                                 |                 | datediff('year',timestamp(_1),dateadd('day',366,timestamp(_1))) == 1; |  
 +---------------------------------+-----------------+-----------------------------------------------------------------------+
 | Timestamp Functions             | datediff        | select count(0) from s3object where                                   |  
-|                                 |                 | datediff("month",timestamp(_1),timestamp(_2))) == 2;                  | 
+|                                 |                 | datediff('month',timestamp(_1),timestamp(_2))) == 2;                  | 
 +---------------------------------+-----------------+-----------------------------------------------------------------------+
 | Timestamp Functions             | utcnow          | select count(0) from s3object where                                   |
-|                                 |                 | datediff("hours",utcnow(),dateadd("day",1,utcnow())) == 24 ;          |
+|                                 |                 | datediff('hours',utcnow(),dateadd('day',1,utcnow())) == 24 ;          |
 +---------------------------------+-----------------+-----------------------------------------------------------------------+
 | String Functions                | substring       | select count(0) from s3object where                                   |
 |                                 |                 | int(substring(_1,1,4))>1950 and int(substring(_1,1,4))<1960;          |
 +---------------------------------+-----------------+-----------------------------------------------------------------------+
-| String Functions                | trim            | select trim("   foobar   ") from s3object;                            |
+| String Functions                | trim            | select trim('   foobar   ') from s3object;                            |
 +---------------------------------+-----------------+-----------------------------------------------------------------------+
-| String Functions                | trim            | select trim(trailing from "   foobar   ") from s3object;              |
+| String Functions                | trim            | select trim(trailing from '   foobar   ') from s3object;              |
 +---------------------------------+-----------------+-----------------------------------------------------------------------+
-| String Functions                | trim            | select trim(leading from "   foobar   ") from s3object;               |
+| String Functions                | trim            | select trim(leading from '   foobar   ') from s3object;               |
 +---------------------------------+-----------------+-----------------------------------------------------------------------+
-| String Functions                | trim            | select trim(both "12" from  "1112211foobar22211122") from s3objects;  |
+| String Functions                | trim            | select trim(both '12' from  '1112211foobar22211122') from s3objects;  |
 +---------------------------------+-----------------+-----------------------------------------------------------------------+
-| String Functions                | lower/upper     | select lower("ABcD12#$e") from s3object;                              |
+| String Functions                | lower/upper     | select lower('ABcD12#$e') from s3object;                              |
 +---------------------------------+-----------------+-----------------------------------------------------------------------+
 | String Functions                | char_length     | select count(*) from s3object where char_length(_3)==3;               |
 |                                 | character_length|                                                                       |
 +---------------------------------+-----------------+-----------------------------------------------------------------------+
 | Complex queries                 |   select sum(cast(_1 as int)),                                                          |
 |                                 |          max(cast(_3 as int)),                                                          |
-|                                 |          substring("abcdefghijklm",                                                     |
+|                                 |          substring('abcdefghijklm',                                                     |
 |                                 |          (2-1)*3+sum(cast(_1 as int))/sum(cast(_1 as int))+1,                           |
 |                                 |          (count() + count(0))/count(0)) from s3object;                                  |
 +---------------------------------+-----------------+-----------------------------------------------------------------------+
@@ -176,10 +181,10 @@ Features Support
 
 NULL
 ~~~~
-NULL is a legit value in ceph-s3select systems similar to other DB systems, i.e. systems needs to handle the case where a value is NULL.
-The definition of NULL in our context, is missing/unknown, in that sense **NULL can not produce a value on ANY arithmetic operations** ( a + NULL will produce NULL value).
-The Same is with arithmetic comaprision, **any comparison to NULL is NULL**, i.e. unknown.
-
+| NULL is a legit value in ceph-s3select systems similar to other DB systems, i.e. systems needs to handle the case where a value is NULL.
+| The definition of NULL in our context, is missing/unknown, in that sense **NULL can not produce a value on ANY arithmetic operations** ( a + NULL will produce NULL value).
+| The Same is with arithmetic comaprision, **any comparison to NULL is NULL**, i.e. unknown.
+| Bellow is a truth table contains the NULL use-case.
 
 +---------------------------------+-----------------------------+
 | A is NULL                       | Result (NULL=UNKNOWN)       |
