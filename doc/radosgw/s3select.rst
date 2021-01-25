@@ -44,7 +44,7 @@ Basic functionalities
     | **S3select** has a definite set of functionalities that should be implemented (if we wish to stay compliant with AWS), currently only a portion of it is implemented.
     
     | The implemented software architecture supports basic arithmetic expressions, logical and compare expressions, including nested function calls and casting operators, that alone enables the user reasonable flexibility. 
-    | review the bellow feature-table_.
+    | review the below feature-table_.
 
 
 Error Handling
@@ -61,7 +61,7 @@ Features Support
 ----------------
 .. _feature-table:
 
-  | Currently only part of `AWS select command <https://docs.aws.amazon.com/AmazonS3/latest/dev/s3-glacier-select-sql-reference-select.html>`_ is implemented, table bellow describes what is currently supported.
+  | Currently only part of `AWS select command <https://docs.aws.amazon.com/AmazonS3/latest/dev/s3-glacier-select-sql-reference-select.html>`_ is implemented, table below describes what is currently supported.
   | The following table describes the current implementation for s3-select functionalities:
 
 +---------------------------------+-----------------+-----------------------------------------------------------------------+
@@ -190,7 +190,7 @@ NULL
 | NULL is a legit value in ceph-s3select systems similar to other DB systems, i.e. systems needs to handle the case where a value is NULL.
 | The definition of NULL in our context, is missing/unknown, in that sense **NULL can not produce a value on ANY arithmetic operations** ( a + NULL will produce NULL value).
 | The Same is with arithmetic comaprision, **any comparison to NULL is NULL**, i.e. unknown.
-| Bellow is a truth table contains the NULL use-case.
+| Below is a truth table contains the NULL use-case.
 
 +---------------------------------+-----------------------------+
 | A is NULL                       | Result (NULL=UNKNOWN)       |
@@ -275,7 +275,7 @@ Sending Query to RGW
 
 
    | Sending s3-select request to RGW using AWS cli, should follow `AWS command reference <https://docs.aws.amazon.com/cli/latest/reference/s3api/select-object-content.html>`_.
-   | bellow is an example for it.
+   | below is an example for it.
 
 ::
 
