@@ -95,10 +95,10 @@ Features Support
 +---------------------------------+-----------------+-----------------------------------------------------------------------+
 | missing column                  | unknown state   | select count(*) from s3object where _1 is null;                       | 
 +---------------------------------+-----------------+-----------------------------------------------------------------------+
-| projection column               | similar to      |   select case                                                         | 
-|                                 | if/then/else    |           when (1+1==(2+1)*3) then 'case_1'                           |
-|                                 |                 |           when ((4*3)==(12)) then 'case_2' else 'case_else' end,      |
-|                                 |                 |           age*2 from s3object;                                        | 
+| projection column               | similar to      | select case                                                           | 
+|                                 | if/then/else    |   when (1+1==(2+1)*3) then 'case_1'                                   |
+|                                 |                 |   when ((4*3)==(12)) then 'case_2' else 'case_else' end,              |
+|                                 |                 |   age*2 from s3object;                                                | 
 +---------------------------------+-----------------+-----------------------------------------------------------------------+
 | logical operator                | ``coalesce`` :: return first non-null argumnet                                          | 
 |                                 |                   select coalesce(nullif(5,5),nullif(1,1.0),age+12) from s3object;      |
@@ -107,12 +107,18 @@ Features Support
 |                                 |            nullif(1,1)=NULL nullif(null,1)=NULL nullif(2,1)=2                           |
 |                                 |                     select nullif(cast(_1 as int),cast(_2 as int)) from s3object;       |
 +---------------------------------+-----------------+-----------------------------------------------------------------------+
-| logical operator                | ``{exp} in ( .. {exp} ..)``                                                             | 
+| logical operator                | ``{expression} in ( .. {expression} ..)``                                               | 
 |                                 |             select count(*) from s3object                                               | 
-|                                 |                 where 'a' in ('b',substr(_1,char_length(_1)-2,1,'c'));                  |
+|                                 |                 where 'ben' in (trim(_5),substring(_1,char_length(_1)-3,3),last_name);  |
 +---------------------------------+-----------------+-----------------------------------------------------------------------+
-| logical operator                | ``{exp} like {pattern}``                                                                |
-|                                 |                   select count(*) from s3object where 'aabbccdef' like '%de_';          | 
+| logical operator                | ``{expression} between {expression} and {expression}``                                  | 
+|                                 |             select count(*) from stdin                                                  | 
+|                                 |                 where substring(_3,char_length(_3),1) between "x" and trim(_1)          |
+|                                 |                     and substring(_3,char_length(_3)-1,1) == ":";                       |
++---------------------------------+-----------------+-----------------------------------------------------------------------+
+| logical operator                | ``{expression} like {match-pattern}``                                                   |
+|                                 |                   select count(*) from s3object where first_name like '%de_';           | 
+|                                 |                   select count(*) from s3object where _1 like \"%a[r-s]\;               | 
 +---------------------------------+-----------------+-----------------------------------------------------------------------+
 | casting operator                | select cast(123 as int)%2 from s3object;                                                |
 +---------------------------------+-----------------+-----------------------------------------------------------------------+
